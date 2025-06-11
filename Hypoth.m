@@ -91,9 +91,6 @@ n_sim = 20;  % number of simulated datasets
 N_target = 5000;  % points per dataset
 Ts_sim1 = zeros(n_sim,1);
 Ts_sim2 = zeros(n_sim,1);
-% Estimate us_b and ut_b from original b_evt_data once
-%us_b = @(x, y) ...;  % from gs_b_vec
-%ut_b = @(t) ...;     % from gt_b_vec
 
 parfor sim_idx = 1:n_sim
     fprintf('Simulation %d of %d\n', sim_idx, n_sim);
@@ -129,82 +126,22 @@ parfor sim_idx = 1:n_sim
            -((ti - Td).^2) ./ (2 * sigma_t^2 .* Dd.^2))), x, y, t);
 
     % Step 3: Compute Fst and Ts
-%Fst  = @(x,y,t) abs(us_b(x,y).*ut_b(t) ./ ust_b(x,y,t));
+
 Fst2 = @(x,y,t) abs(us_b(x,y).*ut_b(t) - ust_b(x,y,t)) / (20*20*750);
 
 
-%Ts_sim1(sim_idx) =integral3(Fst, 0, 20, 0, 20, 0, 750, 'RelTol', 1e-5, 'AbsTol', 1e-5);
+
 Ts_sim2(sim_idx) = integral3(Fst2, 0, 20, 0, 20, 0, 750, 'RelTol', 1e-5, 'AbsTol', 1e-5);
 
 end 
 
-p_value1 = (1 + sum(Ts_sim1 >= Ts1)) / (1 + n_sim);
+
 p_value2 = (1 + sum(Ts_sim2 >= Ts2)) / (1 + n_sim);
 
 % Print both results:
-fprintf('Observed Ts1 (Fst)  = %.4f, p-value1 = %.4f\n', Ts1, p_value1);
+
 fprintf('Observed Ts2 (Fst2) = %.4f, p-value2 = %.4f\n', Ts2, p_value2);
 
-% % Compute mean of simulated Ts values under H0
-% Ts_mean = mean(Ts_sim);
-% 
-% % Two-tailed p-value: count how many simulations are as extreme as observed Ts
-% p_value_2tail = (1 + sum(abs(Ts_sim - Ts_mean) >= abs(Ts - Ts_mean))) / (1 + n_sim);
-% 
-% % Report
-% fprintf("Observed Ts = %.4f, two-tailed p-value = %.4f\n", Ts, p_value_2tail);
 
 
 
-% Sort Ts_sim for better visual presentation
-%Ts_sim_sorted = sort(Ts_sim);
-
-% % Plot histogram
-% figure;
-% histogram(Ts_sim_sorted, 'BinWidth', 0.1, 'FaceColor', [0.2 0.4 0.6], 'EdgeColor', 'k');
-% hold on;
-% 
-% % Plot observed Ts
-% xline(Ts, 'r--', 'LineWidth', 2, 'Label', 'Observed Ts', 'LabelHorizontalAlignment', 'left');
-% 
-% % Plot symmetric two-tailed cutoffs
-% Ts_mean = mean(Ts_sim);
-% delta = abs(Ts - Ts_mean);
-% lower_cutoff = Ts_mean - delta;
-% upper_cutoff = Ts_mean + delta;
-% 
-% xline(lower_cutoff, 'k--', 'LineWidth', 1.5, 'Label', 'Lower Tail');
-% xline(upper_cutoff, 'k--', 'LineWidth', 1.5, 'Label', 'Upper Tail');
-% 
-% % Labeling
-% xlabel('Simulated Ts values');
-% ylabel('Frequency');
-% title('Two-Tailed Test: Histogram of Simulated T_s Statistics');
-% legend('Simulated T_s', 'Observed T_s', 'Two-tailed cutoff bounds');
-% grid on;
-% 
-% 
-
-
-% using quantiles 
-
-
-% % Sort the simulated Ts values
-% sorted_Ts = sort(Ts_sim);
-% p_value_quantile = sum(sorted_Ts >= Ts) / n_sim;
-% 
-% 
-% n_sim = length(Ts_sim);
-% alpha = 0.05;
-% sorted_Ts = sort(Ts_sim);
-% crit_idx = ceil((1 - alpha) * (n_sim + 1));
-% Ts_crit = sorted_Ts(min(crit_idx, n_sim));  % avoid out-of-bounds
-% 
-% 
-% fprintf("Critical value at %.2f significance = %.4f\n", alpha, Ts_crit);
-% 
-% if Ts > Ts_crit
-%     disp("Reject H0: space and time are dependent.");
-% else
-%     disp("Fail to reject H0: no evidence against independence.");
-% end
