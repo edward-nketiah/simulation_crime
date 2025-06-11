@@ -73,16 +73,14 @@ us_b = @(x, y) gs_b_vec(x, y);
 ut_b = @(t) gt_b_vec(t);
 ust_b = @(x, y, t) g_st_vec(x, y, t);
 
-% Define both functions
-%F_st  = @(x, y, t) us_b(x, y) .* ut_b(t) ./ ust_b(x, y, t);
-%Fst   = @(x, y, t) abs(F_st(x, y, t));
+
 Fst2  = @(x, y, t) abs(us_b(x, y) .* ut_b(t) - ust_b(x, y, t)) ./ (20 * 20 * 750);
 
 % Compute the integral (sum over all grid points times dx*dy*dt)
-%Ts1 =integral3(Fst, 0, 20, 0, 20, 0, 750, 'RelTol', 1e-5, 'AbsTol', 1e-5);
+
 Ts2 = integral3(Fst2, 0, 20, 0, 20, 0, 750, 'RelTol', 1e-5, 'AbsTol', 1e-5);
 
-fprintf('Approximated Ts (Fst)  = %.4f\n', Ts1);
+
 fprintf('Approximated Ts (Fst2) = %.4f\n', Ts2);
 
 % Step A9.5 starts from here
