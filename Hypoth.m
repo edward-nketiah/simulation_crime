@@ -1,7 +1,7 @@
 clear; clc;
 tic;
 rng(888)
-% --- Step 0: Load observed data ---
+
 P_sm = load('sim_P1.mat');
 data_sm = load('sim_spacedata.mat');
 space_time_data = data_sm.space_time_data;
@@ -9,9 +9,7 @@ space_time_data(:,3) = space_time_data(:,3) - space_time_data(1,3); % Shift time
 P1 = double(P_sm.P1);
 
 n1 = 1200;      % Number of background points
-%N_cand = 900000; % Candidate points for rejection sampling
-%n_sim = 5000;    % Number of bootstrap simulations
-     % For reproducibility
+
 S = [0,20,0,20];
 T = [0,750];
 
@@ -24,12 +22,10 @@ r2 = 15;
 r3 = 100; 
 tol = 1e-5;
 eps = 1e-10;
-%for j = 1:5
+
     tic
     [b_data,bs_sort,bt_sort,o_data,o_sort,x1,y1,t1,n] = MC_data(P1,space_time_data,n1);
-    % if length(b_data)<300
-    %     break
-    % end
+   
     [result_b, V_b] = nor_data(b_data,S,T,k1,k2,k0,k3,[],r2,r3);
     [result_o, V_o] = nor_data(o_data,[],[],k1,k2,k0,k3,r1,[],r1);
     result_o = single(result_o);
@@ -38,7 +34,7 @@ eps = 1e-10;
     [~,~,~,D_b,Xs_b,Ys_b,Ds_b,Tt_b,Dt_b] = bound_fun(result_b,0);
     [temp_bs,temp_bt,temp_o] = sort_fun_o(t1,space_time_data,bs_sort,bt_sort,o_sort,n1,n);
     clear bs_sort bt_sort b_data result_b result_o
-%end 
+
 
 [~,b_evt_data,O_evt_data,~] = fwkde2G(space_time_data,V_b,Xs_b,Ys_b,Tt_b,Ds_b,Dt_b,V_o,X_o,Y_o,T_o,D_o,n,n1,x1,y1,t1,temp_bs,temp_bt,temp_o);
 
@@ -83,8 +79,6 @@ Ts2 = integral3(Fst2, 0, 20, 0, 20, 0, 750, 'RelTol', 1e-5, 'AbsTol', 1e-5);
 
 fprintf('Approximated Ts (Fst2) = %.4f\n', Ts2);
 
-% Step A9.5 starts from here
-
 n_sim = 20;  % number of simulated datasets
 N_target = 5000;  % points per dataset
 Ts_sim1 = zeros(n_sim,1);
@@ -123,7 +117,7 @@ parfor sim_idx = 1:n_sim
            -((yi - Yd).^2) ./ (2 * sigma_y^2 .* Dd.^2) ...
            -((ti - Td).^2) ./ (2 * sigma_t^2 .* Dd.^2))), x, y, t);
 
-    % Step 3: Compute Fst and Ts
+% Step 3: Compute Fst and Ts
 
 Fst2 = @(x,y,t) abs(us_b(x,y).*ut_b(t) - ust_b(x,y,t)) / (20*20*750);
 
@@ -139,6 +133,7 @@ p_value2 = (1 + sum(Ts_sim2 >= Ts2)) / (1 + n_sim);
 % Print both results:
 
 fprintf('Observed Ts2 (Fst2) = %.4f, p-value2 = %.4f\n', Ts2, p_value2);
+
 
 
 
