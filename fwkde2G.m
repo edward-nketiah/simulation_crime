@@ -80,11 +80,7 @@ end
 P1(P1<eps)=0;
 % Calculate log maximum likelihood
 P0 = P1(2:end,2:end);
-% Q function
-%li_fun = P1((temp_b~=0),1)'*log(temp_b(temp_b~=0))-sum(P1(:,1))...
-     %+sum(sum(P0(temp_o~=0).*log(temp_o(temp_o~=0))))-beta*n;%Approximate calculation, eliminating the need to calculate integrals
-%likelihood function
-%li_fun1 =  sum(log(sum_b_o(sum_b_o~=0)))-n;
+
 N = length(P1(:,1));  
 G= zeros(N, 1);  
 for j = 2:N
@@ -113,3 +109,4 @@ b_evt_data = event_data(b_evt, :);  % [x, y, t] for immigrant events
 
 % Descendant events (offspring): spatial and temporal coordinates
 O_evt_data = event_data(O_evt, :);  % [x, y, t] for descendant events
+
